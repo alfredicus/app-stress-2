@@ -40,7 +40,7 @@ export class Model {
             if (toks.length === 0) {
                 continue
             }
-            toks = toks.map( tok => trimAll(tok) )
+            toks = toks.map(tok => trimAll(tok))
 
             const data = DataFactory.create(toks[1])
 
@@ -99,38 +99,62 @@ export class Model {
 
     getMisfitAngles(): number[] {
         this.inv.engine.setHypotheticalStress(this.solution.rotationMatrixW, this.solution.stressRatio)
-        const s = this.inv.engine.stress([0,0,0])
-        return this.inv.data.map( d => d.predict({stress: s})*180/Math.PI )
+        const s = this.inv.engine.stress([0, 0, 0])
+        return this.inv.data.map(d => d.predict({ stress: s }) * 180 / Math.PI)
     }
 
     displayResults(solution: MisfitCriteriunSolution) {
         this.inv.engine.setHypotheticalStress(solution.rotationMatrixW, solution.stressRatio)
-        const s = this.inv.engine.stress([0,0,0])
-        let misfitAngles = "<ol>"
-        this.inv.data.forEach( d => {
-            const m = d.predict({stress: s})*180/Math.PI
-            misfitAngles += `<li>${m.toFixed(1)}°`
-        })
-        misfitAngles += "</ol>"
+        const s = this.inv.engine.stress([0, 0, 0])
+        
 
         const stress = solution.stressTensorSolution
         const eig = eigen([stress[0][0], stress[0][1], stress[0][2], stress[1][1], stress[1][2], stress[2][2]])
 
-        document.getElementById("info").innerHTML = `<div>
-            <h3>Inversion results</h3>
+        const data = []
+        this.inv.data.forEach((d, index) => {
+            const m = d.predict({ stress: s }) * 180 / Math.PI
+            data.push([d.toks[0], d.toks[1], m.toFixed(1)])
+        })
+
+        document.getElementById("table").innerHTML = ''
+
+        const gridjs = window['gridjs']
+        const table = new gridjs.Grid({
+            columns: ["Data index", "Data type", "Mistfit (°)"],
+            data,
+            pagination: true,
+            style: {
+                table: {
+                    border: '3px solid #ccc'
+                },
+                th: {
+                    'background-color': 'rgba(0, 0, 0, 0.1)',
+                    color: '#000',
+                    'border-bottom': '3px solid #ccc',
+                    'text-align': 'center'
+                },
+                td: {
+                    'text-align': 'center'
+                }
+            }
+        })
+        table.render(document.getElementById("table"))
+
+        document.getElementById("result").innerHTML = `<h3>Inversion results</h3>
             <table>
                 <tbody>
+                    
                     <tr>
-                        <td>Misfit</td>
-                        <td><code>${solution.misfit.toFixed(2)} </code></td>
+                        <td>Mean misfit angle</td>
+                        <td><code>${(solution.misfit*180/Math.PI).toFixed(2)}°</code></td>
                     </tr>
                     <tr>
                         <td>R</td>
                         <td><code>${solution.stressRatio.toFixed(2)}</code></td>
                     </tr>
                 </tbody>
-            </table>
-            <br>
+            </table><br/>
             <div>
                 <math>
                     <mrow>
@@ -171,9 +195,13 @@ export class Model {
             &sigma;2 = [${-eig.values[1].toFixed(3)}]
             <br>
             &sigma;3 = [${-eig.values[0].toFixed(3)}]
-            <br><br>
-            <h3>Data misfit angles:</h3>
-            ${misfitAngles}
+            </div>`
+
+        /*
+        document.getElementById("info").innerHTML = `<div>
+            
+            
         </div>`
+        */
     }
 }

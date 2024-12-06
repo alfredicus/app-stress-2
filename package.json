@@ -70,10 +70,13 @@
         "@tweakpane/plugin-camerakit": "^0.3.0",
         "@tweakpane/plugin-essentials": "^0.2.0",
         "@tweakpane/plugin-interval": "^0.3.0",
+        "@types/three": "^0.159.0",
         "@youwol/dataframe": "^0.1.0",
         "@youwol/geometry": "^0.0.23",
         "@youwol/math": "^0.1.0",
         "plotly.js": "^2.26.2",
+        "three": "^0.159.0",
+        "three-stdlib": "^2.28.7",
         "tweakpane": "^4.0.1"
     }
 }

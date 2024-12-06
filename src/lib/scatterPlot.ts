@@ -1,6 +1,6 @@
 // import Plotly from 'plotly.js' // !!!!!!!!! DOES not work
 import Plotly from 'plotly.js/dist/plotly'
-import { Model } from './model'
+import { Model } from './Model'
 
 export class ScatterPlot {
     private div = ''
